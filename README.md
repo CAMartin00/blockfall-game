@@ -23,7 +23,7 @@
 
  Click here to watch a YouTube video of the game!
  
- Click here to play the game yourself!
+ [Click here to play the game yourself!](BlockFall/index.html)
 
 ## Controls
 
