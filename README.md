@@ -8,7 +8,7 @@
  
  In addition to usual Tetris rules, the player must also defend their blocks from enemies which will appear at the top of a column of blocks, destroying one each time a block is placed then making a row of undestroyable blocks after clearing the column. The enemies may be crushed with a block or used to clear a line, either will destroy them and prevent them from destroying more blocks or creating a row of undestroyable blocks.
 
- ## Project Description
+## Project Description
  
  For the project we were required to set up 3 distinct sections: Graphics, Audio, and Physical Computing.
 
@@ -33,7 +33,7 @@
  S: Decrease Enemy Spawn Rate on Start Screen | Place Block instantly on Play Screen
  Spacebar: Swap Block with Hold Space on Play Screen
 
- ## Future Development
+## Future Development
  
  In the future, my dream for the game would be to add a story to it and make art which is cohesive to this story. I would also like to create a controller for the game, though that would require creating a chip with the buttons in the desired places, which is far outside the realm of what I can do.
 
