@@ -33,19 +33,25 @@ let gameBoard = [
   [0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0]
-]
+];
 
 // Game State Variable
 let gameState = "wait";
 
-let canvasHeight = 600;
-let canvasWidth = 600;
+let canvasHeight = 750;
+let canvasWidth = 505;
 
 // Variables for Game Board
-let gameX = 145;
-let gameY = 0;
-let gameHeight = 730;
-let gameWidth = 310;
+let gameX = 15;
+let gameY = 10;
+let gameHeight = 725;
+let gameWidth = 300;
+
+// Variables for Hold Space
+let holdX = 330;
+let holdY = 15;
+let holdHeight = 160;
+let holdWidth = 160;
 
 // Variable for Game Board Color
 let boardColor;
@@ -62,6 +68,9 @@ let emptyColor;
 
 // Variable for currently moving Block
 let curBlock;
+
+// Variable for Block in Hold Space
+let holdBlock;
 
 // Array holding currently living Enemies
 let enemies = [];
@@ -157,7 +166,7 @@ function setup()
   */
 
   // // Initialize serialPDM with portName
-  // serialPDM = new PDMSerial(portName);
+  //serialPDM = new PDMSerial(portName);
 
   /*
       End Physical Set-Up
@@ -187,31 +196,45 @@ function draw()
   
   
   // While waiting to start...
-  if(gameState == "Wait")
+  if(gameState == "wait")
   {
 
     // Create start text
     fill(0);
-    textSize(30);
-    text("Use your arduino controller or W/S to change enemy spawn rate\nThen click the play button to start the game!",300,300);
+    textAlign(CENTER);
+    textSize(25);
+    text("Use your arduino controller or W/S\nto change enemy spawn rate\nThen click the play button\nto start the game!",250,200);
   }
   
   // When Playing the game...
-  else if(gameState == "Play")
+  else if(gameState == "play")
   {
-    // Draw Game Board
+    // Draw Game Board and Hold Space
     fill(boardColor);
     rect(gameX,gameY,gameWidth,gameHeight);
+    rect(holdX,holdY,holdWidth,holdHeight);
+    
+    // Create Hold Space text
+    fill(blockColor);
+    textAlign(CENTER);
+    textSize(30);
+    text("HOLD", holdX+holdWidth/2,holdY+holdHeight+15);
 
     // Create Score and Time text at bottom of screen
     fill(0);
     textSize(15);
-    text("Score: " + score, 100,650);
-    text("Time Left: " + timeLeft, 500,650);
+    textAlign(RIGHT);
+    text("Score: " + score, 505,720);
+    text("Time Taken: " + gameTime, 505,740);
 
     // Once per second...
     if(frameCount % 60 == 0) 
     { 
+      // Increment timer
+      gameTime++;
+    }
+    if(frameCount % 30 == 0)
+    {
       // If block has just been placed, give player a new block
       if(curBlock == null)
       {
@@ -222,8 +245,46 @@ function draw()
         curBlock.moveDown();
       }
 
-      // Increment timer
-      gameTime += 1;
+      // Add 1 score every half second
+      score++;
+    }
+
+    for(let i = 0; i < 24; i++)
+    {
+      for(let j = 0; j < 10; j++)
+      {
+        switch(gameBoard[i][j])
+        {
+          case 0:
+            fill(emptyColor);
+            rect(gameX + (j*30) + 2.5, gameY + (i*30) + 5, 25, 25);
+            break;
+          case 1:
+            fill(playerColor);
+            rect(gameX + (j*30) + 2.5, gameY + (i*30) + 5, 25, 25);
+            break;
+          case 2:
+            fill(enemyColor);
+            rect(gameX + (j*30) + 2.5, gameY + (i*30) + 5, 25, 25);
+            break;
+          case 3:
+            fill(blockColor);
+            rect(gameX + (j*30) + 2.5, gameY + (i*30) + 5, 25, 25);
+            break;
+          case 4:
+            fill(unbreakableColor);
+            rect(gameX + (j*30) + 2.5, gameY + (i*30) + 5, 25, 25);
+            break;
+        } 
+      }
+    }
+    if(holdBlock)
+    {
+      fill(playerColor);
+      rect(holdX + 67.5, holdY + 67.5, 25, 25);
+      rect(holdX + 67.5 + (holdBlock.blockOne[1]*30), holdY + 67.5 + (holdBlock.blockOne[0]*30), 25, 25);
+      rect(holdX + 67.5 + (holdBlock.blockTwo[1]*30), holdY + 67.5 + (holdBlock.blockTwo[0]*30), 25, 25);
+      rect(holdX + 67.5 + (holdBlock.blockThree[1]*30), holdY + 67.5 + (holdBlock.blockThree[0]*30), 25, 25);
     }
   }
   
@@ -256,6 +317,33 @@ function mouseClicked()
     // Update to if mouse over start button
     if(true)
     {
+      gameBoard = [
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0]
+      ];
+
       // Update Game State
       gameState = "play";
 
@@ -272,6 +360,33 @@ function mouseClicked()
     // Update to if mouse over restart button
     if(true)
     {
+      gameBoard = [
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0]
+      ];
+
       // Update Game State
       gameState = "play";
 
@@ -301,7 +416,7 @@ function keyPressed()
   {
     if(gameState == "play")
     {
-
+      curBlock.moveLeft();
     }
   }
   // S = Place Block ("play") | Decrease Enemy Spawn Rate ("wait")
@@ -309,7 +424,7 @@ function keyPressed()
   {
     if(gameState == "play")
     {
-
+      curBlock.placeDown();
     }
     else if(gameState == "wait")
     {
@@ -321,7 +436,7 @@ function keyPressed()
   {
     if(gameState == "play")
     {
-
+      curBlock.moveRight();
     }
   }
   // W = Rotate Block Clockwise ("play") | Increase Enemy Spawn Rate ("wait")
@@ -329,7 +444,7 @@ function keyPressed()
   {
     if(gameState == "play")
     {
-
+      curBlock.rotate();
     }
     else if(gameState == "wait")
     {
@@ -341,7 +456,7 @@ function keyPressed()
   {
     if(gameState == "play")
     {
-
+      swapHold();
     }
   }
 }
@@ -447,17 +562,71 @@ function endGame()
   songLoop.stop();
 }
 
+// Make player block a real block on the game board, clear any lines necessary
+function solidifyBlock()
+{
+  curBlock.addToBoard(true);
+  let tempMainPos = curBlock.mainBlockPos;
+  curBlock = null;
+
+  let toClear = true;
+  let numCleared = 0;
+  for(let i = min(tempMainPos[0]+2, 23); i > max(tempMainPos[0]-2, 0); i--)
+  {
+    for(elem in gameBoard[i])
+    {
+      if(gameBoard[i][elem] != 2 && gameBoard[i][elem] != 3) toClear = false;
+    }
+    if(toClear) 
+    {
+      gameBoard.splice(i, 1);
+      gameBoard.unshift([0,0,0,0,0,0,0,0,0,0])
+      numCleared += 1;
+      i++;
+    }
+    toClear = true;
+  }
+  score += numCleared*numCleared*20
+
+  curBlock = new PlayerBlock();
+}
+
+function swapHold()
+{
+  if(holdBlock)
+  {
+    let tempBlock = holdBlock;
+    tempBlock.mainBlockPos = curBlock.mainBlockPos;
+    holdBlock = curBlock;
+    curBlock.removeFromBoard();
+    curBlock = tempBlock;
+    curBlock.addToBoard();
+  }
+  else
+  {
+    holdBlock = curBlock;
+    curBlock.removeFromBoard();
+    curBlock = new PlayerBlock();
+  }
+}
+
 // Class for Enemies
 class Enemy
 {
-    constructor(location)
+    constructor(enemyX = Math.floor(Math.random() * 10))
     {
-
-    }
-
-    draw()
-    {
-
+      for(let i = 0; i < 23; i++)
+      {
+        if(gameBoard[i][enemyX] == 2)
+        {
+          return;
+        }
+        else if(gameBoard[i][enemyX] >= 3)
+        {
+          this.position = [i, enemyX]
+          return;
+        }
+      }
     }
 
     moveDown()
@@ -469,53 +638,61 @@ class Enemy
 // Class for currently controlled Block
 class PlayerBlock
 {
-    constructor()
+    constructor(theShape = Math.floor(Math.random() * 7))
     {
       // Pick random shape from 5 shapes
-      // 0 = Square, 1 = L, 2 = Z, 3 = T, 4 = S
-      this.shape = Math.floor(Math.random() * 5);
+      // 0 = Square, 1 = L, 2 = Z, 3 = T, 4 = S, 5 = L, 6 = Reverse-L
+      this.shape = theShape;
       this.mainBlockPos = [0,5];
-
-      // Variables for whether an enemy is covered by a non-solid block
-      this.mainBlockingEnemy = false;
-      this.oneBlockingEnemy = false;
-      this.twoBlockingEnemy = false;
-      this.threeBlockingEnemy = false;
 
       // Block Locations = [y,x]
       // +x = Right
       // +y = Down
       // Direction Distance
-      if(this.shape = 0)
+      switch(this.shape)
       {
-        this.blockOne = [1,0];
-        this.blockTwo = [0,1];
-        this.blockThree = [1,1];
+        case 0:
+          this.blockOne = [1,0];
+          this.blockTwo = [0,1];
+          this.blockThree = [1,1];
+          break;
+        case 1:
+          this.blockOne = [0,-1];
+          this.blockTwo = [0,1];
+          this.blockThree = [0,2];
+          break;
+        case 2:
+          this.blockOne = [0,-1];
+          this.blockTwo = [1,0];
+          this.blockThree = [1,1];
+          break;
+        case 3:
+          this.blockOne = [0,-1];
+          this.blockTwo = [1,0];
+          this.blockThree = [0,1];
+          break;
+        case 4:
+          this.blockOne = [1,0];
+          this.blockTwo = [1,-1];
+          this.blockThree = [0,1];
+          break;
+        case 5:
+          this.blockOne = [0,-1];
+          this.blockTwo = [1,-1];
+          this.blockThree = [0,1];
+          break;
+        case 6:
+          this.blockOne = [0,-1];
+          this.blockTwo = [0,1];
+          this.blockThree = [1,1];
+          break;
       }
-      else if(this.shape = 1)
-      {
-        this.blockOne = [0,-1];
-        this.blockTwo = [0,1];
-        this.blockThree = [0,2];
-      }
-      else if(this.shape = 2)
-      {
-        this.blockOne = [0,-1];
-        this.blockTwo = [1,0];
-        this.blockThree = [1,1];
-      }
-      else if(this.shape = 3)
-      {
-        this.blockOne = [0,-1];
-        this.blockTwo = [1,0];
-        this.blockThree = [0,1];
-      }
-      else
-      {
-        this.blockOne = [1,0];
-        this.blockTwo = [1,-1];
-        this.blockThree = [0,1];
-      }
+
+      // Variables for whether an enemy is covered by a non-solid block
+      this.mainBlockingEnemy = (gameBoard[0][5] == 2);
+      this.oneBlockingEnemy = (gameBoard[this.blockOne[0]][5 + this.blockOne[1]] == 2);
+      this.twoBlockingEnemy = (gameBoard[this.blockTwo[0]][5 + this.blockTwo[1]] == 2);
+      this.threeBlockingEnemy = (gameBoard[this.blockThree[0]][5 + this.blockThree[1]] == 2);
 
       // If the block can't be spawned, end the game
       if(!this.determineValidLocation()) endGame();
@@ -525,7 +702,7 @@ class PlayerBlock
     // Shift block left by 1 if possible
     moveLeft()
     {
-      tempMainPos = [this.mainBlockPos[0],this.mainBlockPos[1] - 1];
+      let tempMainPos = [this.mainBlockPos[0],this.mainBlockPos[1] - 1];
       if(this.determineValidLocation(tempMainPos))
       {
         this.removeFromBoard();
@@ -539,7 +716,7 @@ class PlayerBlock
     // Shift block right by 1 if possible
     moveRight()
     {
-      tempMainPos = [this.mainBlockPos[0],this.mainBlockPos[1] + 1];
+      let tempMainPos = [this.mainBlockPos[0],this.mainBlockPos[1] + 1];
       if(this.determineValidLocation(tempMainPos))
       {
         this.removeFromBoard();
@@ -553,7 +730,7 @@ class PlayerBlock
     // Shift Block down by 1 or Solidify if not possible
     moveDown()
     {
-      tempMainPos = [this.mainBlockPos[0] + 1,this.mainBlockPos[1]];
+      let tempMainPos = [this.mainBlockPos[0] + 1,this.mainBlockPos[1]];
       if(this.determineValidLocation(tempMainPos))
       {
         this.removeFromBoard();
@@ -571,13 +748,15 @@ class PlayerBlock
     // Move Block down as far as possible then Solidify
     placeDown()
     {
-      tempMainPos = [this.mainBlockPos[0] + 1,this.mainBlockPos[1]];
+      let tempMainPos = [this.mainBlockPos[0] + 1,this.mainBlockPos[1]];
       while(this.determineValidLocation(tempMainPos))
       {
         tempMainPos[0] += 1;
       }
       tempMainPos[0] -= 1;
 
+      curBlock.removeFromBoard();
+      this.mainBlockPos = tempMainPos;
       solidifyBlock();
     }
 
@@ -585,9 +764,9 @@ class PlayerBlock
     rotate()
     {
       // Check if new rotation is valid
-      tempBlockOne = [this.blockOne[1],-1*this.blockOne[0]];
-      tempBlockTwo = [this.blockTwo[1],-1*this.blockTwo[0]];
-      tempBlockThree = [this.blockThree[1],-1*this.blockThree[0]];
+      let tempBlockOne = [this.blockOne[1],-1*this.blockOne[0]];
+      let tempBlockTwo = [this.blockTwo[1],-1*this.blockTwo[0]];
+      let tempBlockThree = [this.blockThree[1],-1*this.blockThree[0]];
       if(!this.determineValidLocation(this.mainBlockPos, tempBlockOne, tempBlockTwo, tempBlockThree)) return;
       
       // Remove old locations from board
@@ -670,18 +849,23 @@ class PlayerBlock
     }
 
     // Set the current block locations to 1, if an enemy was there, save that information
-    addToBoard()
+    // Parameter allows Solidify to make solid blocks
+    addToBoard(solidify=false)
     {
       if(gameBoard[this.mainBlockPos[0]][this.mainBlockPos[1]] == 2) this.mainBlockingEnemy = true;
-      gameBoard[this.mainBlockPos[0]][this.mainBlockPos[1]] = 1;
+      if(!solidify) gameBoard[this.mainBlockPos[0]][this.mainBlockPos[1]] = 1;
+      else gameBoard[this.mainBlockPos[0]][this.mainBlockPos[1]] = 3;
 
       if(gameBoard[this.mainBlockPos[0] + this.blockOne[0]][this.mainBlockPos[1] + this.blockOne[1]] == 2) this.oneBlockingEnemy = true;
-      gameBoard[this.mainBlockPos[0] + this.blockOne[0]][this.mainBlockPos[1] + this.blockOne[1]] = 1;
+      if(!solidify) gameBoard[this.mainBlockPos[0] + this.blockOne[0]][this.mainBlockPos[1] + this.blockOne[1]] = 1;
+      else gameBoard[this.mainBlockPos[0] + this.blockOne[0]][this.mainBlockPos[1] + this.blockOne[1]] = 3;
 
       if(gameBoard[this.mainBlockPos[0] + this.blockTwo[0]][this.mainBlockPos[1] + this.blockTwo[1]] == 2) this.twoBlockingEnemy = true;
-      gameBoard[this.mainBlockPos[0] + this.blockTwo[0]][this.mainBlockPos[1] + this.blockTwo[1]] = 1;
+      if(!solidify) gameBoard[this.mainBlockPos[0] + this.blockTwo[0]][this.mainBlockPos[1] + this.blockTwo[1]] = 1;
+      else gameBoard[this.mainBlockPos[0] + this.blockTwo[0]][this.mainBlockPos[1] + this.blockTwo[1]] = 3;
 
       if(gameBoard[this.mainBlockPos[0] + this.blockThree[0]][this.mainBlockPos[1] + this.blockThree[1]] == 2) this.threeBlockingEnemy = true;
-      gameBoard[this.mainBlockPos[0] + this.blockThree[0]][this.mainBlockPos[1] + this.blockThree[1]] = 1;
+      if(!solidify) gameBoard[this.mainBlockPos[0] + this.blockThree[0]][this.mainBlockPos[1] + this.blockThree[1]] = 1;
+      else gameBoard[this.mainBlockPos[0] + this.blockThree[0]][this.mainBlockPos[1] + this.blockThree[1]] = 3;
     }
 }
