@@ -28,15 +28,15 @@
 
 ## Controls
 
- Arduino buttons: Increase/Decrease Enemy Spawn Rate on Start Screen
+ Arduino buttons: | Increase/Decrease Enemy Spawn Rate on Start Screen
  
- A/D: Move Blocks Left/Right on Play Screen
+ A/D: | Move Blocks Left/Right on Play Screen
  
- W: Increase Enemy Spawn Rate on Start Screen | Rotate Block Clockwise on Play Screen
+ W: | Increase Enemy Spawn Rate on Start Screen | Rotate Block Clockwise on Play Screen
  
- S: Decrease Enemy Spawn Rate on Start Screen | Place Block instantly on Play Screen
+ S: | Decrease Enemy Spawn Rate on Start Screen | Place Block instantly on Play Screen
  
- Spacebar: Swap Block with Hold Space on Play Screen
+ Spacebar: | Swap Block with Hold Space on Play Screen
 
 ## Future Development
  
