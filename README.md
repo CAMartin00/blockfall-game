@@ -18,6 +18,7 @@
  For the Audio Section, I created a Loop which plays the game song while in the game scene, as well as event which triggers when an enemy creates a row of unbreakable blocks.
 
  For the Physical Section, I assembled and programmed a controller with 2 buttonsfor increasing/decreasing enemy spawn rates as well as indicating when a row of unbreakable blocks is created with a red LED. Initially I wanted to control the entire game via the arduino and use mouse/keyboard interaction only for non-gameplay input, but, for the sake of recording the video and ease of play, I simplified the physical portion (The USB cord for my Arduino is too short to effectively record both it and the screen, and when playing with the controller was not intuitive due to the placement of buttons being restricted on the Arduino's breadboard).
+ (In the end, my entire Arduino seemed to be having technical difficulties, my code is available, and I tested it prior to the issues with my Arduino and it seemed to work appropriately. The Arduino is omitted from the video as it was unusable for the gameplay).
 
 ## Demo
 
@@ -28,9 +29,13 @@
 ## Controls
 
  Arduino buttons: Increase/Decrease Enemy Spawn Rate on Start Screen
+ 
  A/D: Move Blocks Left/Right on Play Screen
+ 
  W: Increase Enemy Spawn Rate on Start Screen | Rotate Block Clockwise on Play Screen
+ 
  S: Decrease Enemy Spawn Rate on Start Screen | Place Block instantly on Play Screen
+ 
  Spacebar: Swap Block with Hold Space on Play Screen
 
 ## Future Development
