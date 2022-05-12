@@ -1,79 +1,78 @@
 /*
-Youtube Link: https://youtube.com/shorts/zCrc_85fgvE?feature=share
+Youtube Link: https://youtube.com/shorts/oX35Qakjlhs?feature=share
 
-Cameron Martin, April 2022
-Controller Assigment
+Cameron Martin, May 2022
+Final Integration Project
 */
 
 #include "PDMSerial.h"
 
 PDMSerial pdm;
 
-const int xPin = A0;  // Analog input for Potentiometer for Joystick x value
-const int yPin = A1;  // Analog input for Potentiometer for Joystick y value
-const int clickPin = 12; // Digital input for Joystick Click
-const int buzzPin = 3; // PWM enabled output for Buzzer
+const int clickUpPin = 8; // Digital input for Top Button
+const int clickDownPin = 7; // Digital input for Bottom Button
 
-int xVal = 0; // Unmapped Potentiometer for Joystick x value, start at 0 (77-507)
-int xOut = 0; // Mapped Potentiometer for Joystick x value, start at 0 (-10 - 10)
+int lastClickUp = 1; // Current value of Top Button
+int curClickUp = 1; // Temporary storage for Top Button
+int toClickUp = false; // Whether Top Button was clicked
 
-int yVal = 0; // Unmapped Potentiometer for Joystick y value, start at 0 (77-507)
-int yOut = 0; // Mapped Potentiometer for Joystick y value, start at 0 (-10 - 10)
-
-int lastClick = 1; // Current value of Joystick switch
-int curClick = 1; // Temporary storage for Joystick switch
-int toClick = false; // Whether Joystick was clicked
+int lastClickDown = 1; // Current value of Bottom Button
+int curClickDown = 1; // Temporary storage for Bottom Button
+int toClickDown = false; // Whether Bottom Button was clicked
 
 // Set up analogPin as input and ledPin as output, begin Serial communication
 void setup() {
-  pinMode(xPin, INPUT);
-  pinMode(yPin, INPUT);
-  pinMode(clickPin, INPUT_PULLUP);
-  pinMode(buzzPin, OUTPUT);
+  pinMode(clickUpPin, INPUT);
+  pinMode(clickDownPin, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
   Serial.begin(9600);
 }
 
 // Read in potentiometer values, map them, then transmit them and whether to click. 
 // If new serial communication has occured with the name "squish", turn on the buzzer
 void loop() {
-  toClick = false;
+//  toClickUp = 0;
 
-  // Read in potentiometer values, map them to -10 - 10 for use as a movement value
-  xVal = analogRead(xPin);
-  xOut = map(xVal, 0, 496, -1, 1);
+  // Read in the Top Button value
+  curClickUp = digitalRead(clickUpPin);
 
-  yVal = analogRead(yPin);
-  yOut = map(yVal, 0, 504, -1, 1);
-
-  // Read in the Joystick switch value
-  curClick = digitalRead(clickPin);
-
-  // If curClick is different from lastClick, report a click and update lastClick
-  if(lastClick != curClick)
-  {
-    toClick = true;
-    lastClick = curClick;
-  }
+//  // If curClick is different from lastClick, report a click and update lastClick
+//  if(lastClickUp != curClickUp)
+//  {
+//    toClickUp = 1;
+//    lastClickUp = curClickUp;
+//  }
   
-  // Transmit xOut and yOut
-  pdm.transmitSensor("joyX", xOut);
-  pdm.transmitSensor("joyY", yOut);
+//  toClickDown = 0;
+
+  // Read in the Bottom Button value
+  curClickDown = digitalRead(clickDownPin);
+
+//  // If curClick is different from lastClick, report a click and update lastClick
+//  if(lastClickDown != curClickDown)
+//  {
+//    toClickDown = 1;
+//    lastClickDown = curClickDown;
+//  }
 
   // Transmit whether a click occurred
-  pdm.transmitSensor("click", toClick);
+  pdm.transmitSensor("clickUp", toClickUp);
+  pdm.transmitSensor("clickDown", toClickDown);
   pdm.transmitSensor("end");
+//  Serial.print("clickUp:");
+//  Serial.print(curClickUp);
+//  Serial.print(",");
+//  Serial.print("clickDown:");
+//  Serial.print(curClickDown); 
+//  Serial.println();
 
-  // If new data comes in with the name "squish", turn on the buzzer
+  // If new data comes in with the name "fill", turn on the LED
   boolean newData = pdm.checkSerial();
   if(newData) {
-    if(pdm.getName().equals(String("squish"))) {
-      // Buzz for .333 seconds (light LED as well)
-      noTone(buzzPin);
+    if(pdm.getName().equals(String("fill"))) {
+      // Light LED for 1 second when an enemy fills a line
       digitalWrite(LED_BUILTIN, HIGH);
-      delay(333);
-      noTone(buzzPin);
+      delay(1000);
       digitalWrite(LED_BUILTIN, LOW);
     }
   }

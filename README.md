@@ -21,7 +21,7 @@
 
 ## Demo
 
- Click here to watch a YouTube video of the game!
+ [Click here to watch a YouTube video of the game!](https://youtube.com/shorts/oX35Qakjlhs?feature=share)
  
  [Click here to play the game yourself!](BlockFall/index.html)
 

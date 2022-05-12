@@ -1,4 +1,4 @@
-// YouTube Link: 
+// YouTube Link: https://youtube.com/shorts/oX35Qakjlhs?feature=share
 // Cameron Martin, April 2022
 // Controller Assignment
 
@@ -76,11 +76,12 @@ let holdBlock;
 let enemies = [];
 
 // Variable for Enemy Spawn Rate [0-1]
-let enemySpawnRate = .5;
+let enemySpawnRate = 50;
 
 // Variables for Game Timer, Score
 let gameTime = 0;
 let score = 0;
+let highScore = 0;
 
 /* 
     End Graphics Initialization
@@ -152,8 +153,8 @@ function setup()
       Begin Audio Set-Up
   */
 
-  // buzzer = new Tone.Player("/end_buzzer.mp3");
-  // buzzer.toDestination();
+  buzzer = new Tone.Player("/end_buzzer.mp3");
+  buzzer.toDestination();
 
   songLoop = writeSong()
 
@@ -165,8 +166,8 @@ function setup()
       Begin Physical Set-Up
   */
 
-  // // Initialize serialPDM with portName
-  //serialPDM = new PDMSerial(portName);
+  // Initialize serialPDM with portName
+  serialPDM = new PDMSerial(portName);
 
   /*
       End Physical Set-Up
@@ -179,9 +180,24 @@ function draw()
       Begin Physical Read-In
   */
 
-  // // Read in joyX and joyY and set cursor's movement to their values
-  // let ourJoyX = serialPDM.sensorData.joyX;
-  // let ourJoyY = serialPDM.sensorData.joyY;
+  // Read in joyX and joyY and set cursor's movement to their values
+  let increaseSpawnRate = serialPDM.sensorData.clickUp;
+  let decreaseSpawnRate = serialPDM.sensorData.clickDown;
+
+  if(increaseSpawnRate == 1) 
+  {
+    if(gameState == "wait")
+    {
+      if(enemySpawnRate + 10 <= 100) enemySpawnRate += 10;
+    }
+  }
+  if(decreaseSpawnRate == 1)
+  {
+    if(gameState == "wait")
+    {
+      if(enemySpawnRate - 10 >= 0) enemySpawnRate -= 10;
+    }
+  }
 
   /*
       End Physical Read-In
@@ -203,7 +219,20 @@ function draw()
     fill(0);
     textAlign(CENTER);
     textSize(25);
-    text("Use your arduino controller or W/S\nto change enemy spawn rate\nThen click the play button\nto start the game!",250,200);
+    text("Use W/S or the Arduino Buttons\nto increase and decrease",250,200);
+
+    fill(0);
+    textAlign(CENTER);
+    textSize(25);
+    text("Enemy Spawn Rate:\n" + enemySpawnRate + "%", 250,300)
+
+    if(Math.abs(250-mouseX) <= 100 && Math.abs(550-mouseY) <= 50) fill(playerColor);
+    else fill(enemyColor);
+    rect(150,500,200,100);
+    fill(0);
+    textAlign(CENTER);
+    textSize(25);
+    text("Start Game!",250,550);
   }
   
   // When Playing the game...
@@ -291,12 +320,36 @@ function draw()
   // If game is over...
   else if(gameState == "end")
   {
-
     // Create final score and game over text
     fill(0);
     textSize(30);
-    text("Game Over!",300,300);
-    text("Final Score: " + score, 300,400);
+    text("Game Over!",250,100);
+    text("Final Score: " + score, 250,200);
+    if(score >= highScore)
+    {
+      text("New High Score!",250,300);
+      text("Old High Score: " + highScore,250,400);
+    }
+    else
+    {
+      text("High Score: " + highScore,250,300);
+    }
+
+    if(Math.abs(250-mouseX) <= 100 && Math.abs(550-mouseY) <= 50) fill(playerColor);
+    else fill(enemyColor);
+    rect(150,500,200,100);
+    fill(0);
+    textAlign(CENTER);
+    textSize(25);
+    text("Play Again",250,550);
+
+    if(Math.abs(250-mouseX) <= 100 && Math.abs(655-mouseY) <= 50) fill(playerColor);
+    else fill(enemyColor);
+    rect(150,605,200,100);
+    fill(0);
+    textAlign(CENTER);
+    textSize(25);
+    text("Main Menu",250,655);
   }
 
   /*
@@ -315,7 +368,7 @@ function mouseClicked()
   if(gameState == "wait")
   {
     // Update to if mouse over start button
-    if(true)
+    if(Math.abs(250-mouseX) <= 100 && Math.abs(550-mouseY) <= 50)
     {
       gameBoard = [
         [0,0,0,0,0,0,0,0,0,0],
@@ -353,12 +406,13 @@ function mouseClicked()
 
       score = 0;
       gameTime = 0;
+      highScore = score;
     }
   }
   else if(gameState == "end")
   {
     // Update to if mouse over restart button
-    if(true)
+    if(Math.abs(250-mouseX) <= 100 && Math.abs(550-mouseY) <= 50)
     {
       gameBoard = [
         [0,0,0,0,0,0,0,0,0,0],
@@ -387,6 +441,10 @@ function mouseClicked()
         [0,0,0,0,0,0,0,0,0,0]
       ];
 
+      highScore = score;
+      score = 0;
+      gameTime = 0;
+
       // Update Game State
       gameState = "play";
 
@@ -395,8 +453,9 @@ function mouseClicked()
       Tone.Transport.start();
     }
     // Update to if mouse over menu button
-    else if(true)
+    else if(Math.abs(250-mouseX) <= 100 && Math.abs(655-mouseY) <= 50)
     {
+
       // Update Game State
       gameState = "wait";
     }
@@ -428,7 +487,7 @@ function keyPressed()
     }
     else if(gameState == "wait")
     {
-      if(enemySpawnRate > 0) enemySpawnRate -= .1;
+      if(enemySpawnRate - 10 >= 0) enemySpawnRate -= 10;
     }
   }
   // D = Move Block Right
@@ -448,7 +507,7 @@ function keyPressed()
     }
     else if(gameState == "wait")
     {
-      if(enemySpawnRate < 1) enemySpawnRate += .1;
+      if(enemySpawnRate + 10 <= 100) enemySpawnRate += 10;
     }
   }
   // Spacebar = Swap with Hold Space
@@ -558,8 +617,11 @@ function writeSong()
 // Mark game as over and stop the background music
 function endGame()
 {
-  gameState = "end"
-  songLoop.stop();
+  gameState = "end";
+  lowSynth.triggerRelease("+.0001");
+  highSynth.triggerRelease("+.0001");
+  Tone.Transport.pause();
+  // songLoop.stop();
 }
 
 // Make player block a real block on the game board, clear any lines necessary
@@ -586,7 +648,28 @@ function solidifyBlock()
     }
     toClear = true;
   }
-  score += numCleared*numCleared*20
+  score += numCleared*numCleared*20;
+  
+  for(let i = 0; i < enemies.length; i++)
+  {
+    if(!enemies[i].position)
+    {
+      enemies[i].removeFromBoard();
+      enemies.splice(i,1);
+      i--;
+      continue;
+    }
+    enemies[i].moveDown();
+  }
+  if(enemySpawnRate >= (Math.random()*100))
+  {
+    enemies.unshift(new Enemy());
+    if(!enemies[0].position)
+    {
+      enemies[0].removeFromBoard();
+      enemies.splice(0,1);
+    }
+  }
 
   curBlock = new PlayerBlock();
 }
@@ -615,23 +698,66 @@ class Enemy
 {
     constructor(enemyX = Math.floor(Math.random() * 10))
     {
-      for(let i = 0; i < 23; i++)
+      for(let i = 0; i < 24; i++)
       {
         if(gameBoard[i][enemyX] == 2)
         {
+          this.position = false;
           return;
         }
         else if(gameBoard[i][enemyX] >= 3)
         {
-          this.position = [i, enemyX]
-          return;
+          this.position = [i - 1, enemyX]
+          break;
         }
+        if(i == 23) this.position = [23,enemyX];
       }
+
+      this.addToBoard()
     }
 
     moveDown()
     {
+      this.removeFromBoard();
 
+      if(this.position[0] == 23 || gameBoard[this.position[0] + 1][this.position[1]] == 4)
+      {
+        this.createRow();
+        this.position = false;
+        return;
+      }
+      
+      for(let i = this.position[0] + 1; i < 24; i++)
+      {
+        if(gameBoard[i][this.position[1]] == 2)
+        {
+          this.position = false;
+          return;
+        }
+        else if(gameBoard[i][this.position[1]] >= 3 || i == 23)
+        {
+          this.position = [i, this.position[1]];
+          break;
+        }
+      }
+      this.addToBoard();
+    }
+
+    createRow()
+    {
+      gameBoard.push([4,4,4,4,4,4,4,4,4,4])
+      gameBoard.splice(0,1);
+      buzzer.start();
+    }
+
+    removeFromBoard()
+    {
+      gameBoard[this.position[0]][this.position[1]] = 0;
+    }
+
+    addToBoard()
+    {
+      gameBoard[this.position[0]][this.position[1]] = 2;
     }
 }
 
@@ -854,18 +980,94 @@ class PlayerBlock
     {
       if(gameBoard[this.mainBlockPos[0]][this.mainBlockPos[1]] == 2) this.mainBlockingEnemy = true;
       if(!solidify) gameBoard[this.mainBlockPos[0]][this.mainBlockPos[1]] = 1;
-      else gameBoard[this.mainBlockPos[0]][this.mainBlockPos[1]] = 3;
+      else 
+      {
+        gameBoard[this.mainBlockPos[0]][this.mainBlockPos[1]] = 3;
+        if(this.mainBlockingEnemy) 
+        {
+          console.log("Main blocking enemy")
+          for(let i = 0; i < enemies.length; i++)
+          {
+            console.log("Testing enemy " + i + " at " + enemies[i].position + " against block at " + this.mainBlockPos);
+            if(enemies[i].position[0] == this.mainBlockPos[0] && enemies[i].position[1] == this.mainBlockPos[1])
+            {
+              console.log("Enemy found");
+              enemies[i].position = false;
+              // enemies[i].removeFromBoard();
+              enemies.splice(i,1);
+              break;
+            }
+          }
+        }
+      }
 
       if(gameBoard[this.mainBlockPos[0] + this.blockOne[0]][this.mainBlockPos[1] + this.blockOne[1]] == 2) this.oneBlockingEnemy = true;
       if(!solidify) gameBoard[this.mainBlockPos[0] + this.blockOne[0]][this.mainBlockPos[1] + this.blockOne[1]] = 1;
-      else gameBoard[this.mainBlockPos[0] + this.blockOne[0]][this.mainBlockPos[1] + this.blockOne[1]] = 3;
+      else 
+      {
+        gameBoard[this.mainBlockPos[0] + this.blockOne[0]][this.mainBlockPos[1] + this.blockOne[1]] = 3;
+        if(this.oneBlockingEnemy) 
+        {
+          console.log("One blocking enemy")
+          for(let i = 0; i < enemies.length; i++)
+          {
+            console.log("Testing enemy " + i + " at " + enemies[i].position + " against block at " + [this.mainBlockPos[0] + this.blockOne[0],this.mainBlockPos[1] + this.blockOne[1]]);
+            if(enemies[i].position[0] == (this.mainBlockPos[0] + this.blockOne[0]) && enemies[i].position[1] == (this.mainBlockPos[1] + this.blockOne[1]))
+            {
+              console.log("Enemy found");
+              enemies[i].position = false;
+              // enemies[i].removeFromBoard();
+              enemies.splice(i,1);
+              break;
+            }
+          }
+        }
+      }
 
       if(gameBoard[this.mainBlockPos[0] + this.blockTwo[0]][this.mainBlockPos[1] + this.blockTwo[1]] == 2) this.twoBlockingEnemy = true;
       if(!solidify) gameBoard[this.mainBlockPos[0] + this.blockTwo[0]][this.mainBlockPos[1] + this.blockTwo[1]] = 1;
-      else gameBoard[this.mainBlockPos[0] + this.blockTwo[0]][this.mainBlockPos[1] + this.blockTwo[1]] = 3;
+      else 
+      {
+        gameBoard[this.mainBlockPos[0] + this.blockTwo[0]][this.mainBlockPos[1] + this.blockTwo[1]] = 3;
+        if(this.twoBlockingEnemy) 
+        {
+          console.log("Two blocking enemy")
+          for(let i = 0; i < enemies.length; i++)
+          {
+            console.log("Testing enemy " + i + " at " + enemies[i].position + " against block at " + [this.mainBlockPos[0] + this.blockTwo[0],this.mainBlockPos[1] + this.blockTwo[1]]);
+            if(enemies[i].position[0] == (this.mainBlockPos[0] + this.blockTwo[0]) && enemies[i].position[1] == (this.mainBlockPos[1] + this.blockTwo[1]))
+            {
+              console.log("Enemy found");
+              enemies[i].position = false;
+              // enemies[i].removeFromBoard();
+              enemies.splice(i,1);
+              break;
+            }
+          }
+        }
+      }
 
       if(gameBoard[this.mainBlockPos[0] + this.blockThree[0]][this.mainBlockPos[1] + this.blockThree[1]] == 2) this.threeBlockingEnemy = true;
       if(!solidify) gameBoard[this.mainBlockPos[0] + this.blockThree[0]][this.mainBlockPos[1] + this.blockThree[1]] = 1;
-      else gameBoard[this.mainBlockPos[0] + this.blockThree[0]][this.mainBlockPos[1] + this.blockThree[1]] = 3;
+      else 
+      {
+        gameBoard[this.mainBlockPos[0] + this.blockThree[0]][this.mainBlockPos[1] + this.blockThree[1]] = 3;
+        if(this.threeBlockingEnemy) 
+        {
+          console.log("Three blocking enemy")
+          for(let i = 0; i < enemies.length; i++)
+          {
+            console.log("Testing enemy " + i + " at " + enemies[i].position + " against block at " + [this.mainBlockPos[0] + this.blockThree[0],this.mainBlockPos[1] + this.blockThree[1]]);
+            if(enemies[i].position != false && enemies[i].position[0] == (this.mainBlockPos[0] + this.blockThree[0]) && enemies[i].position[1] == (this.mainBlockPos[1] + this.blockThree[1]))
+            {
+              console.log("Enemy found");
+              enemies[i].position = false;
+              // enemies[i].removeFromBoard();
+              enemies.splice(i,1);
+              break;
+            }
+          }
+        }
+      }
     }
 }
