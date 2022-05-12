@@ -529,6 +529,12 @@ function writeSong()
     lowSynth = new Tone.Synth({
       oscillator: {
         type: "sawtooth"
+      },
+      envelope: {
+        attack: .001,
+        decay: 1,
+        sustain: .5,
+        release: .001
       }
     }).toDestination();
 
